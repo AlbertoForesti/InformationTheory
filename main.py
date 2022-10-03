@@ -8,6 +8,6 @@ from ITFirstExercise import MaxInformationFinder
 if __name__ == '__main__':
     #MaxInformationFinder.max_entropy_vector_plot()
     #MaxInformationFinder.average_vector_entropy_plot()
-    MaxInformationFinder.meal_pmf(6, 5)
+    MaxInformationFinder.meal_pmf(2, 5)
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/

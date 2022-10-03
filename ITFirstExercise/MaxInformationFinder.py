@@ -70,9 +70,14 @@ def average_vector_entropy_plot():
 
 
 def meal_pmf(N, average):
-    costs = np.random.exponential(average, N)
-    coefficients = 0*costs
-    for c in costs:
-        coefficients[c] = c - average
-    beta = numpy.roots(coefficients)
+    #costs = np.random.exponential(average, N)
+    costs = np.asarray([3.97542, 12.72573])
+    print(costs)
+    fun = lambda x : sum((costs - average)*(x**costs))/(x**costs[0]) #division by costs[0] to discard trivial solution
+    beta = fsolve(fun, 2/N)
     print(beta)
+    alpha = 1/(sum(beta**costs))
+    print(alpha)
+    p = np.asarray([alpha*(beta**c) for c in costs])
+    plt.scatter(costs, p)
+    plt.show()
