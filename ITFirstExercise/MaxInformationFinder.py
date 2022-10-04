@@ -1,10 +1,7 @@
 import random
-
 import matplotlib.pyplot as plt
-import numpy
 import numpy as np
 import math
-
 from scipy.optimize import fsolve
 
 
@@ -51,8 +48,12 @@ def max_entropy_vector_plot():
 def entropy_plot():
     p1 = np.linspace( 0, 1, 100 )
     H = np.array( [ hc( p, np.arange( 0, 1, 0.01 ) ) for p in p1 ] )
-    # print(H)
+    print(H)
+    plt.xlabel("p1")
+    plt.ylabel("p2")
     plt.imshow( H, cmap='rainbow', interpolation='bilinear' )
+    # sns.heatmap(H)
+    # sns.heatmap(H, xticklabels=np.arange(0, 1, 0.01).round(2), yticklabels=np.arange(0, 1, 0.01).round(2))
     return H
 
 
@@ -69,15 +70,19 @@ def average_vector_entropy_plot():
     plt.show( )
 
 
-def meal_pmf(N, average):
-    #costs = np.random.exponential(average, N)
-    costs = np.asarray([3.97542, 12.72573])
+def meal_pmf(costs, average):
     print(costs)
-    fun = lambda x : sum((costs - average)*(x**costs))/(x**costs[0]) #division by costs[0] to discard trivial solution
-    beta = fsolve(fun, 2/N)
+    fun = lambda x : sum((costs - average)*(x**costs))/(x**costs[0]) #division by costs[0] to discard trivial solutions
+    beta = fsolve(fun, 2/costs.shape[0])
     print(beta)
     alpha = 1/(sum(beta**costs))
     print(alpha)
     p = np.asarray([alpha*(beta**c) for c in costs])
-    plt.scatter(costs, p)
+    fig, ax = plt.subplots()
+    ax.set_xlabel( 'cost' )
+    ax.set_ylabel( 'probability' )
+    ax.set_title( 'Probability Mass Function' )
+    plt.ylim([0, 1])
+    plt.scatter(costs, p, c="white", edgecolors="black")
+    plt.grid()
     plt.show()
