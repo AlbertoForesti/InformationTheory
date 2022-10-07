@@ -7,9 +7,9 @@ import numpy as np
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
-    #MaxInformationFinder.max_entropy_vector_plot()
-    #MaxInformationFinder.average_vector_entropy_plot()
-    costs = np.asarray( [ 3.97542, 12.72573, 8.1325, 5, -2.1625 ] )
-    MaxInformationFinder.meal_pmf(costs, np.average(costs))
+    MaxInformationFinder.max_entropy_vector_plot()
+    MaxInformationFinder.average_vector_entropy_plot()
+    costs = np.asarray( [ 3.99, 6.49, 9.99, 0.99, 14.49 ] )
+    MaxInformationFinder.meal_pmf(costs, 5)
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/

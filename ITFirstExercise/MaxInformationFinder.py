@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import math
 from scipy.optimize import fsolve
+import seaborn as sns
 
 
 def f(n):
@@ -48,9 +49,10 @@ def max_entropy_vector_plot():
 def entropy_plot():
     p1 = np.linspace( 0, 1, 100 )
     H = np.array( [ hc( p, np.arange( 0, 1, 0.01 ) ) for p in p1 ] )
-    print(H)
     plt.xlabel("p1")
     plt.ylabel("p2")
+    plt.xticks(np.arange(0, 101, 10), np.round(np.linspace(0, 1, 11), 2))  # Set text labels and properties.
+    plt.yticks( np.arange( 0, 101, 10 ), np.round( np.linspace( 0, 1, 11 ), 2 ) )  # Set text labels and properties.
     plt.imshow( H, cmap='rainbow', interpolation='bilinear' )
     # sns.heatmap(H)
     # sns.heatmap(H, xticklabels=np.arange(0, 1, 0.01).round(2), yticklabels=np.arange(0, 1, 0.01).round(2))
@@ -72,11 +74,10 @@ def average_vector_entropy_plot():
 
 def meal_pmf(costs, average):
     print(costs)
+    print(np.average(costs))
     fun = lambda x : sum((costs - average)*(x**costs))/(x**costs[0]) #division by costs[0] to discard trivial solutions
     beta = fsolve(fun, 2/costs.shape[0])
-    print(beta)
     alpha = 1/(sum(beta**costs))
-    print(alpha)
     p = np.asarray([alpha*(beta**c) for c in costs])
     fig, ax = plt.subplots()
     ax.set_xlabel( 'cost' )
@@ -84,5 +85,6 @@ def meal_pmf(costs, average):
     ax.set_title( 'Probability Mass Function' )
     plt.ylim([0, 1])
     plt.scatter(costs, p, c="white", edgecolors="black")
+    #sns.scatterplot(x=costs, y=p)
     plt.grid()
     plt.show()
