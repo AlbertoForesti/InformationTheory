@@ -18,8 +18,9 @@ if __name__ == '__main__':
     MaxInformationFinder.meal_pmf(costs, np.average(costs), path+"\\Ex2B.png" )
     MaxInformationFinder.meal_pmf( costs, 13, path + "\\Ex2B13.png" )
     MaxInformationFinder.meal_pmf( costs, 5, path + "\\Ex2B5.png" )"""
-    juve_data = np.asarray([[14./38, 6./38, 0], [5./38, 3./38, 2./38], [1./38, 1./38, 6./38]])
-    MaxInformationFinder.joint_distribution_stats(juve_data)
+    #juve_data = np.asarray([[14./38, 6./38, 0], [5./38, 3./38, 2./38], [1./38, 1./38, 6./38]])
+    #MaxInformationFinder.joint_distribution_stats(juve_data)
+    MaxInformationFinder.entropy_plotter_2d()
 
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/

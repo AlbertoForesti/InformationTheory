@@ -2,6 +2,7 @@ import random
 import matplotlib.pyplot as plt
 import numpy as np
 import math
+import informationTheoryUtilities as it
 from scipy.optimize import fsolve
 
 
@@ -25,17 +26,14 @@ def h(p):
     return p * np.log2( 1 / p ) + (1 - p) * np.log2( 1 / (1 - p) )
 
 
-def entropy(px):
-    return sum([-x*np.log2(x) if x != 0 and x != 1 else 0 for x in px.flat])
-
-
 def hc(p_fixed, p_array):
     return np.array([fc(p, p_fixed) for p in p_array])
 
 
 def entropy_plotter_2d():
     prob = np.linspace(0, 1, 100)
-    H = np.array([h(p) for p in prob])
+    distributions = [np.array([p, 1-p]) for p in prob]
+    H = np.array([it.entropy(px) for px in distributions])
     fig, ax = plt.subplots( )
     ax.plot( prob, H )
     plt.show( )
@@ -98,9 +96,9 @@ def meal_pmf(costs, average, path):
 def joint_distribution_stats(pxy):
     px = pxy.sum(axis=0)
     py = pxy.sum(axis=1)
-    Hx = entropy(px)
-    Hy = entropy(py)
-    Hxy = entropy(pxy)
+    Hx = it.entropy(px)
+    Hy = it.entropy(py)
+    Hxy = it.entropy(pxy)
     Hxcondy = Hxy - Hx
     Hycondx = Hxy - Hy
     I = Hx + Hy - Hxy
