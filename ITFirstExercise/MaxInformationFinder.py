@@ -25,6 +25,10 @@ def h(p):
     return p * np.log2( 1 / p ) + (1 - p) * np.log2( 1 / (1 - p) )
 
 
+def entropy(px):
+    return sum([-x*np.log2(x) if x != 0 and x != 1 else 0 for x in px.flat])
+
+
 def hc(p_fixed, p_array):
     return np.array([fc(p, p_fixed) for p in p_array])
 
@@ -75,10 +79,9 @@ def average_vector_entropy_plot():
     plt.close()
 
 
-def meal_pmf(costs, average):
-    path = "C:\\Users\\Gian Luca Foresti\\Desktop\\Materiale Uni\\4 - anno\\IT"
+def meal_pmf(costs, average, path):
     fun = lambda x: sum((costs - average)*(x**costs))/(x**costs[0]) #division by costs[0] to discard trivial solutions
-    beta = fsolve(fun, 2/costs.shape[0])
+    beta = fsolve(fun, 1)
     alpha = 1/(sum(beta**costs))
     p = np.asarray([alpha*(beta**c) for c in costs])
     fig, ax = plt.subplots()
@@ -88,5 +91,24 @@ def meal_pmf(costs, average):
     plt.ylim([0, 1])
     plt.scatter(costs, p, c="white", edgecolors="black")
     plt.grid()
-    plt.savefig(path+"\\Ex2A.png")
+    plt.savefig(path)
     plt.close( )
+
+
+def joint_distribution_stats(pxy):
+    px = pxy.sum(axis=0)
+    py = pxy.sum(axis=1)
+    Hx = entropy(px)
+    Hy = entropy(py)
+    Hxy = entropy(pxy)
+    Hxcondy = Hxy - Hx
+    Hycondx = Hxy - Hy
+    I = Hx + Hy - Hxy
+    print(px)
+    print(py)
+    print(Hx)
+    print(Hy)
+    print(Hxy)
+    print(I)
+    print(Hxcondy)
+    print(Hycondx)
