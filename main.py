@@ -23,9 +23,7 @@ if __name__ == '__main__':
     #MaxInformationFinder.entropy_plotter_2d()
     #MaxInformationFinder.ex4()
     training_set = np.asarray([[30, 0, 10, 0], [30, 0, 70, 0], [30, 1, 20, 0], [30, 1, 80, 1], [60, 0, 40, 0], [60, 0, 60, 1], [60, 1, 50, 0], [60, 1, 60, 1]])
-    used_thresholds = [set() for x in range(training_set.shape[1]-1)]
-    classifier = MaxInformationFinder.C4dot5classifier(training_set, np.empty([1]), used_thresholds)
-    classifier.classify(np.asarray([60, 1, 90]))
+    classifier = MaxInformationFinder.C4dot5classifier(training_set)
 
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/

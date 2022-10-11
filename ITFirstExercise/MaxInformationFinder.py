@@ -133,6 +133,15 @@ def ex4():
 
 
 class C4dot5classifier:
+    def __init__(self, training_set):
+        used_thresholds = [ set( ) for x in range( training_set.shape[ 1 ] - 1 ) ]
+        self.root = C4dot5node( training_set, np.empty( [ 1 ] ), used_thresholds )
+
+    def classify(self, vector):
+        return self.root.classify(vector)
+
+
+class C4dot5node:
     def __init__(self, training_set, parent_node, used_thresholds):
         # Training set is a matrix with rows as vectors, all columns but the last as feature and the last column as class label
         if training_set.shape[0] == 0:
@@ -195,11 +204,11 @@ class C4dot5classifier:
             return
         self.is_leaf_node = False
         # now compute left and right training set
-        right_training_set = training_set[training_set[:,best_fid]>=best_threshold]
-        left_training_set = training_set[ training_set[ :, best_fid ] < best_threshold ]
+        right_training_set = training_set[training_set[:, best_fid] >= best_threshold]
+        left_training_set = training_set[training_set[:, best_fid] < best_threshold]
 
-        self.right_node = C4dot5classifier(right_training_set, self, used_thresholds)
-        self.left_node = C4dot5classifier(left_training_set, self, used_thresholds)
+        self.right_node = C4dot5node(right_training_set, self, used_thresholds)
+        self.left_node = C4dot5node(left_training_set, self, used_thresholds)
         self.node_feature = best_fid
         self.node_threshold = super_best_threshold
 
