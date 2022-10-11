@@ -5,6 +5,7 @@ import math
 import informationTheoryUtilities as it
 from scipy.optimize import fsolve
 from scipy.stats import binom
+import graphviz
 
 
 def f(n):
@@ -161,7 +162,7 @@ class C4dot5node:
             best_threshold = 0
             # print(training_set[:, fid])
             available_thresholds = set(training_set[:, fid])-used_thresholds[fid]
-            print(fid)
+            #print(fid)
             for t in available_thresholds: #for each threshold that hasn't been considered compute igr
                 # compute distribution for binary representation
                 all_feature_used = False
@@ -173,6 +174,8 @@ class C4dot5node:
                         pxy[0, vector[1]] += 1 #smaller than threshold
                 pxy /= sum(sum(pxy)) #normalization
                 if it.entropy(pxy.sum(axis=1)) == 0: #probably means that of that feature only one instance survived
+                    print(pxy)
+                    print(pxy.sum(axis=1))
                     igr = 0
                 else:
                     igr = it.mutual_information( pxy ) / it.entropy( pxy.sum( axis=1 ) )  # information gain ratio
@@ -182,7 +185,7 @@ class C4dot5node:
                     best_threshold = t
                     best_pxy_threshold = pxy
             if maxigr_threshold > maxigr_feature:
-                print(fid)
+                #print(fid)
                 maxigr_feature = maxigr_threshold
                 super_best_threshold = best_threshold
                 best_fid = fid
@@ -192,15 +195,15 @@ class C4dot5node:
         print(f"Best information gain ratio is: {maxigr_feature}")"""
         #check stopping conditions
         if all_feature_used:
-            print("used all the features")
+            #print("used all the features")
             self.is_leaf_node = True
             self.node_label = parent_node.node_label
             return
         used_thresholds[best_fid].add(super_best_threshold)
-        print("Added threshold ", super_best_threshold, " of feature ", best_fid, "to used thresholds")
-        if best_pxy.sum(axis=1)[0] == 0 or best_pxy.sum(axis=1)[0] == 0:
+        #print("Added threshold ", super_best_threshold, " of feature ", best_fid, "to used thresholds")
+        if best_pxy.sum(axis=1)[0] == 0 or best_pxy.sum(axis=1)[0] == 1:
             self.is_leaf_node = True
-            print("Returned")
+            #print("Returned")
             return
         self.is_leaf_node = False
         # now compute left and right training set
@@ -214,14 +217,14 @@ class C4dot5node:
 
     def classify(self, vector):
         if self.is_leaf_node:
-            print(f"{vector} classified {self.node_label}")
+            #print(f"{vector} classified {self.node_label}")
             return self.node_label
         else:
             if vector[self.node_feature] >= self.node_threshold:
-                print(f"{vector[ self.node_feature ]} >= {self.node_threshold}")
+                #print(f"{vector[ self.node_feature ]} >= {self.node_threshold}")
                 return self.right_node.classify(vector)
             else:
-                print( f"{vector[ self.node_feature ]} < {self.node_threshold}" )
+                #print( f"{vector[ self.node_feature ]} < {self.node_threshold}" )
                 return self.left_node.classify(vector)
 
-    #idea for printing the tree: convert the tree to ETE tree and then use ETE package
+    # def build_graphviz_tree(self, tree):
