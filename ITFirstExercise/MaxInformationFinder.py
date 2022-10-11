@@ -214,3 +214,5 @@ class C4dot5classifier:
             else:
                 print( f"{vector[ self.node_feature ]} < {self.node_threshold}" )
                 return self.left_node.classify(vector)
+
+    #idea for printing the tree: convert the tree to ETE tree and then use ETE package
