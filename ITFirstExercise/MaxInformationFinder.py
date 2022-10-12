@@ -152,12 +152,13 @@ class C4dot5node:
         self.left_node = None
         self.right_node = None
         self.parent_node = parent_node
+        self.training_set = training_set
         if parent_node is None:
             self.name = "Parent node"
         else:
             self.name = "Child of " + self.parent_node.name
         # Training set is a matrix with rows as vectors, all columns but the last as feature and the last column as class label
-        if training_set.shape[0] == 0:
+        if training_set.size == 0:
             self.is_leaf_node = True
             self.node_label = parent_node.node_label
             return
@@ -186,8 +187,8 @@ class C4dot5node:
                         pxy[0, vector[1]] += 1 #smaller than threshold
                 pxy /= sum(sum(pxy)) #normalization
                 if it.entropy(pxy.sum(axis=1)) == 0: #probably means that of that feature only one instance survived
-                    print(pxy)
-                    print(pxy.sum(axis=1))
+                    # print(pxy)
+                    # print(pxy.sum(axis=1))
                     igr = 0
                 else:
                     igr = it.mutual_information( pxy ) / it.entropy( pxy.sum( axis=1 ) )  # information gain ratio
@@ -219,8 +220,8 @@ class C4dot5node:
             return
         self.is_leaf_node = False
         # now compute left and right training set
-        right_training_set = training_set[training_set[:, best_fid] >= best_threshold]
-        left_training_set = training_set[training_set[:, best_fid] < best_threshold]
+        right_training_set = training_set[training_set[:, best_fid] >= super_best_threshold]
+        left_training_set = training_set[training_set[:, best_fid] < super_best_threshold]
 
         self.right_node = C4dot5node(right_training_set, self, used_thresholds)
         self.left_node = C4dot5node(left_training_set, self, used_thresholds)
