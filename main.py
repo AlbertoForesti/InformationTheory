@@ -28,5 +28,5 @@ if __name__ == '__main__':
         res = classifier.classify(vector[0:3])
         if res != vector[3]:
             print("Failure")
-
+    classifier.print_tree()
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/

@@ -136,14 +136,26 @@ def ex4():
 class C4dot5classifier:
     def __init__(self, training_set):
         used_thresholds = [ set( ) for x in range( training_set.shape[ 1 ] - 1 ) ]
-        self.root = C4dot5node( training_set, np.empty( [ 1 ] ), used_thresholds )
+        self.root = C4dot5node( training_set, None, used_thresholds )
 
     def classify(self, vector):
         return self.root.classify(vector)
 
+    def print_tree(self):
+        tree = graphviz.Digraph("Decision tree")
+        self.root.build_graphviz_tree(tree, 1)
+        tree.render(directory='doctest-output', view=True)
+
 
 class C4dot5node:
     def __init__(self, training_set, parent_node, used_thresholds):
+        self.left_node = None
+        self.right_node = None
+        self.parent_node = parent_node
+        if parent_node is None:
+            self.name = "Parent node"
+        else:
+            self.name = "Child of " + self.parent_node.name
         # Training set is a matrix with rows as vectors, all columns but the last as feature and the last column as class label
         if training_set.shape[0] == 0:
             self.is_leaf_node = True
@@ -214,6 +226,8 @@ class C4dot5node:
         self.left_node = C4dot5node(left_training_set, self, used_thresholds)
         self.node_feature = best_fid
         self.node_threshold = super_best_threshold
+        if not self.is_leaf_node:
+            self.name = f"Fid = X{self.node_feature+1}, t = {self.node_threshold}"
 
     def classify(self, vector):
         if self.is_leaf_node:
@@ -227,4 +241,22 @@ class C4dot5node:
                 #print( f"{vector[ self.node_feature ]} < {self.node_threshold}" )
                 return self.left_node.classify(vector)
 
-    # def build_graphviz_tree(self, tree):
+    def build_graphviz_tree(self, tree, node_id):
+        if self.is_leaf_node:
+            tree.node( name=str(node_id), label=str(self.node_label) )
+        else:
+            tree.node( name=str(node_id), label=f"" )
+            if self.left_node is not None:
+                next_id = 2*node_id
+                self.left_node.build_graphviz_tree( tree, next_id )
+                tree.edge( str(node_id), str(next_id), label=f"X{self.node_feature + 1} < {self.node_threshold}" )
+            if self.right_node is not None:
+                next_id = 2*node_id + 1
+                self.right_node.build_graphviz_tree( tree, next_id )
+                tree.edge( str(node_id), str(next_id), label=f"X{self.node_feature + 1} >= {self.node_threshold}" )
+        return
+
+#ordinal
+#igr = 0
+#how to plot?
+#enough training set verification?
