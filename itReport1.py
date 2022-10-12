@@ -260,6 +260,7 @@ def ex1b():
 
 
 def ex2a():
+    path = "C:\\Users\\Gian Luca Foresti\\Desktop\\Materiale Uni\\4 - anno\\IT"
     costs = np.asarray( [ 4, 7, 10, 20, 15 ] )
     meal_pmf( costs, 9, path + "\\Ex2A.png" )
 
