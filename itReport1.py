@@ -153,19 +153,14 @@ class C4dot5node:
         self.right_node = None
         self.parent_node = parent_node
         self.training_set = training_set
-        if parent_node is None:
-            self.name = "Parent node"
-        else:
-            self.name = "Child of " + self.parent_node.name
         # Training set is a matrix with rows as vectors, all columns but the last as feature and the last column as class label
-        if training_set.size == 0:
+        if training_set.size == 0: #if subset is empty it's child node, roll back
             self.is_leaf_node = True
             self.node_label = parent_node.node_label
             return
         self.node_label = np.bincount(training_set[:][-1]).argmax()
         best_fid = 0
         maxigr_feature = 0
-        best_threshold = 0
         best_pxy = np.zeros( [ 2, 2 ] )
         best_pxy_threshold = best_pxy
         super_best_threshold = 0
@@ -227,8 +222,6 @@ class C4dot5node:
         self.left_node = C4dot5node(left_training_set, self, used_thresholds)
         self.node_feature = best_fid
         self.node_threshold = super_best_threshold
-        if not self.is_leaf_node:
-            self.name = f"Fid = X{self.node_feature+1}, t = {self.node_threshold}"
 
     def classify(self, vector):
         if self.is_leaf_node:
@@ -246,7 +239,7 @@ class C4dot5node:
         if self.is_leaf_node:
             tree.node( name=str(node_id), label=str(self.node_label) )
         else:
-            tree.node( name=str(node_id), label=f"" )
+            tree.node( name=str(node_id), label="" )
             if self.left_node is not None:
                 next_id = 2*node_id
                 self.left_node.build_graphviz_tree( tree, next_id )
@@ -257,6 +250,43 @@ class C4dot5node:
                 tree.edge( str(node_id), str(next_id), label=f"X{self.node_feature + 1} >= {self.node_threshold}" )
         return
 
+
+def ex1a():
+    max_entropy_vector_plot( )
+
+
+def ex1b():
+    average_vector_entropy_plot()
+
+
+def ex2a():
+    costs = np.asarray( [ 4, 7, 10, 20, 15 ] )
+    meal_pmf( costs, 9, path + "\\Ex2A.png" )
+
+
+def ex2b():
+    costs = np.asarray( [ 4, 7, 10, 20, 15 ] )
+    path = "C:\\Users\\Gian Luca Foresti\\Desktop\\Materiale Uni\\4 - anno\\IT"
+    meal_pmf( costs, np.average( costs ), path + "\\Ex2B.png" )
+    meal_pmf( costs, 13, path + "\\Ex2B13.png" )
+    meal_pmf( costs, 5, path + "\\Ex2B5.png" )
+
+
+def ex3():
+    juve_data = np.asarray([[14./38, 6./38, 0], [5./38, 3./38, 2./38], [1./38, 1./38, 6./38]])
+    joint_distribution_stats(juve_data)
+
+
+def ex5():
+    training_set = np.asarray(
+        [ [ 30, 0, 10, 0 ], [ 30, 0, 70, 0 ], [ 30, 1, 20, 0 ], [ 30, 1, 80, 1 ], [ 60, 0, 40, 0 ], [ 60, 0, 60, 1 ],
+          [ 60, 1, 50, 0 ], [ 60, 1, 60, 1 ] ] )
+    classifier = C4dot5classifier( training_set )
+    for vector in training_set:
+        res = classifier.classify( vector[ 0:3 ] )
+        if res != vector[ 3 ]:
+            print( "Failure" )
+    classifier.print_tree( )
 #ordinal
 #igr = 0
 #how to plot?
