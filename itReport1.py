@@ -98,39 +98,20 @@ def meal_pmf(costs, average, path):
 def joint_distribution_stats(pxy):
     px = pxy.sum(axis=0)
     py = pxy.sum(axis=1)
-    Hx = it.entropy(px)
-    Hy = it.entropy(py)
-    Hxy = it.entropy(pxy)
-    Hxcondy = Hxy - Hx
-    Hycondx = Hxy - Hy
-    I = Hx + Hy - Hxy
-    print(px)
-    print(py)
-    print(Hx)
-    print(Hy)
-    print(Hxy)
-    print(I)
-    print(Hxcondy)
-    print(Hycondx)
-
-
-def ex4():
-    x = np.arange(0, 11, 1)
-    num = np.asarray([1, 3, 2, 8, 22, 45, 44, 42, 24, 8, 3])
-    px = num/sum(num)
-    uniform = 1/10*np.ones(10)
-    dmin = 100
-    pmin = 0
-    for p in np.arange(0.0001, 1, 0.0001):
-        if it.kl_distance(np.asarray([binom.pmf(r, 10, p) for r in np.arange(0, 11, 1)]), px) < dmin:
-            dmin = it.kl_distance(np.asarray([binom.pmf(r, 10, p) for r in np.arange(0, 11, 1)]), px)
-            pmin = p
-    print(pmin)
-    print(dmin)
-    # plt.scatter(x, np.asarray([binom.pmf(r, 10, pmin) for r in np.arange(0, 11, 1)]))
-    plt.bar(x, np.asarray([binom.pmf(r, 10, pmin) for r in np.arange(0, 11, 1)]), align='center')
-    # plt.hist(np.asarray([binom.pmf(r, 10, pmin) for r in np.arange(0, 11, 1)]))
-    plt.show()
+    hx = it.entropy(px)
+    hy = it.entropy(py)
+    hxy = it.entropy(pxy)
+    hxcondy = hxy - hx
+    hycondx = hxy - hy
+    mutual_information = it.mutual_information(pxy)
+    print(f"px = {px}")
+    print(f"py = {py}")
+    print(f"Hx = {hx}")
+    print(f"Hy = {hy}")
+    print(f"Hxy = {hxy}")
+    print(f"Mutual information = {mutual_information}")
+    print(f"H(x|y) = {hxcondy}")
+    print(f"H(y|x) = {hycondx}")
 
 
 class C4dot5classifier:
@@ -274,8 +255,35 @@ def ex2b():
 
 
 def ex3():
-    juve_data = np.asarray([[14./38, 6./38, 0], [5./38, 3./38, 2./38], [1./38, 1./38, 6./38]])
-    joint_distribution_stats(juve_data)
+    sassuolo_data = np.array([[7, 0, 0], [6, 11, 14]])
+    bvb_data = np.array([[17, 2, 2], [4, 9, 4]])
+    #Rows: Sassuolo scoring 3 or more goals in a match in 21/22, Columns: Sassuolo W/D/L in 21/22
+    distribution = it.pmf(sassuolo_data)
+    print(distribution)
+    joint_distribution_stats(distribution)
+
+
+def ex4():
+    x = np.arange(0, 11, 1)
+    num = np.asarray([1, 3, 2, 8, 22, 45, 44, 42, 24, 8, 3])
+    px = it.pmf(num)
+    print(f"px = {px}")
+    path = "C:\\Users\\Gian Luca Foresti\\Desktop\\Materiale Uni\\4 - anno\\IT"
+    it.save_bar(x, px, path + "\\Ex4empiricalpmf.png")
+    uniform = 1/11*np.ones(11)
+    it.save_bar(x, uniform, path + "\\Ex4uniformpmf.png", title=f'KL-distance = {round(it.kl_distance(uniform, px), 2)}')
+    dmin = 100
+    pmin = 0
+    for p in np.arange(0.01, 1, 0.01):
+        if it.kl_distance(np.asarray([binom.pmf(r, 10, p) for r in np.arange(0, 11, 1)]), px) < dmin:
+            dmin = it.kl_distance(np.asarray([binom.pmf(r, 10, p) for r in np.arange(0, 11, 1)]), px)
+            pmin = p
+    print(f"The parameter p that allows minimum kl-distance for a binomial is: {pmin}")
+    print(f"The minimum distance corresponding to p = {pmin} is {dmin}")
+    print(f"The kl-distance between the uniform distribution and px is {it.kl_distance(uniform, px)}")
+    # plt.scatter(x, np.asarray([binom.pmf(r, 10, pmin) for r in np.arange(0, 11, 1)]))
+    it.save_bar(x, np.asarray([binom.pmf(r, 10, pmin) for r in np.arange(0, 11, 1)]), path + "\\Ex4binomialpmf.png", title=f"p = {round(pmin,2)}, kl-distance = {round(dmin,2)}")
+    # plt.hist(np.asarray([binom.pmf(r, 10, pmin) for r in np.arange(0, 11, 1)]))
 
 
 def ex5():
