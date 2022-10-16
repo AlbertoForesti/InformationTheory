@@ -53,13 +53,11 @@ def max_entropy_vector_plot():
 
 
 def entropy_plot():
-    p1 = np.arange(0, 1, 101)
-    px = np.array([[p, 1-p] for p in p1])
-    H = np.array([it.entropy(np.array([p, 1-p])) for p in p1])
-    print(H)
-    plt.xlabel("p1")
-    plt.ylabel("p2")
-    plt.xticks(np.arange(0, 101, 10), np.round(np.linspace(0, 1, 11), 2))  # Set text labels and properties.
+    p1 = np.linspace( 0, 1, 100 )
+    H = np.array( [ hc( p, np.arange( 0, 1, 0.01 ) ) for p in p1 ] )
+    plt.xlabel( "p1" )
+    plt.ylabel( "p2" )
+    plt.xticks( np.arange( 0, 101, 10 ), np.round( np.linspace( 0, 1, 11 ), 2 ) )  # Set text labels and properties.
     plt.yticks( np.arange( 0, 101, 10 ), np.round( np.linspace( 0, 1, 11 ), 2 ) )  # Set text labels and properties.
     plt.imshow( H, cmap='rainbow', interpolation='bilinear' )
     return H
