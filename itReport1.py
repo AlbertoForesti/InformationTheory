@@ -66,15 +66,15 @@ def entropy_plot():
 def entropy_plot_3d():
     p1 = np.arange(0, 1.01, 0.01)
     p2 = np.arange(0, 1.01, 0.01)
-    distributions = np.array( [ [px, py, 1 - px - py] for px in p1 for py in p2 if 0 <= px + py <= 1 ] )
+    distributions = np.array( [ [round(px, 4), round(py, 4), round(1 - px - py, 4)] for px in p1 for py in p2 if 0 <= px + py <= 1 ] )
     print(distributions)
-    H = np.array( [ it.entropy( px ) for px in distributions ] )
+    H = np.array( [ it.renyi_entropy( px , 200) for px in distributions ] )
     print(H)
     x = distributions[:, 0]
     y = distributions[:, 1]
     fig = plt.figure()
     ax = plt.axes(projection='3d')
-    ax.scatter(x, y, H, c = H)
+    ax.scatter(x, y, H, c = H, cmap = 'turbo')
     plt.show()
     return H
 
@@ -311,6 +311,22 @@ def ex5():
         if res != vector[ 3 ]:
             print( "Failure" )
     classifier.print_tree( )
+
+
+def ex6():
+    time_series = np.random.rand(10000)
+    pattern = np.array([np.random.normal(i, 100) if i % 2 == 0 else i for i in range(0, 1000)])
+    print(pattern)
+    time_series[1000:2000] = pattern #pattern example
+    sliding_window = 500
+    nr = 3
+    y = it.permutation_entropy(time_series, nr, sliding_window)
+    fig, ax = plt.subplots( )
+    ax.plot( np.arange(0, len(y), 1), y)
+    plt.title( f"Average entropy: {np.average( y )}" )
+    ax.set_ylim( ymin=0, ymax=np.max(y)+1 )
+    plt.show( )
+    plt.close( )
 
 #ordinal
 #igr = 0

@@ -36,3 +36,28 @@ def renyi_entropy(px, alpha):
     if alpha == 1:
         return entropy(px)
     return 1/(1-alpha)*np.log2(sum(px**alpha))
+
+def permutation_entropy(time_series, nr, sliding_window = None):
+    time_series = time_series.flat  # avoid bug with multidimensionial arrays
+    if sliding_window is None:
+        sliding_window = len(time_series)
+    permutation_matrix = np.array([np.argsort(time_series[i:i+nr]) for i in range(0, sliding_window)]) #starting permutation matrix
+    distribution = {} #dictionaries of patterns
+    hash_function = lambda x: sum([(10**i)*x[i] for i in range(0, x.size)])
+    for element in permutation_matrix:
+        if hash_function(element) in distribution:
+            distribution[ hash_function( element ) ] += 1
+        else:
+            distribution[ hash_function( element ) ] = 1
+    print(pmf( np.array( [v for v in distribution.values( )] ) ))
+    p_entropy = [entropy( pmf( np.array( [v for v in distribution.values( )] ) ) )]
+    for i in range(1, len(time_series)-nr-sliding_window):
+        exiting = np.argsort(time_series[i-1:i-1+nr])
+        entering = np.argsort(time_series[i+sliding_window:i+sliding_window+nr])
+        if hash_function(entering) in distribution:
+            distribution[hash_function(entering)] += 1
+        else:
+            distribution[hash_function(entering)] = 1
+        distribution[ hash_function( exiting ) ] -= 1
+        p_entropy.append(entropy( pmf( np.array( [v for v in distribution.values( )] ) ) ))
+    return p_entropy
