@@ -53,8 +53,10 @@ def max_entropy_vector_plot():
 
 
 def entropy_plot():
-    p1 = np.linspace( 0, 1, 100 )
-    H = np.array( [ hc( p, np.arange( 0, 1, 0.01 ) ) for p in p1 ] )
+    p1 = np.arange(0, 1, 101)
+    px = np.array([[p, 1-p] for p in p1])
+    H = np.array([it.entropy(np.array([p, 1-p])) for p in p1])
+    print(H)
     plt.xlabel("p1")
     plt.ylabel("p2")
     plt.xticks(np.arange(0, 101, 10), np.round(np.linspace(0, 1, 11), 2))  # Set text labels and properties.
@@ -62,6 +64,21 @@ def entropy_plot():
     plt.imshow( H, cmap='rainbow', interpolation='bilinear' )
     return H
 
+
+def entropy_plot_3d():
+    p1 = np.arange(0, 1.01, 0.01)
+    p2 = np.arange(0, 1.01, 0.01)
+    distributions = np.array( [ [px, py, 1 - px - py] for px in p1 for py in p2 if 0 <= px + py <= 1 ] )
+    print(distributions)
+    H = np.array( [ it.entropy( px ) for px in distributions ] )
+    print(H)
+    x = distributions[:, 0]
+    y = distributions[:, 1]
+    fig = plt.figure()
+    ax = plt.axes(projection='3d')
+    ax.scatter(x, y, H, c = H)
+    plt.show()
+    return H
 
 def average_vector_entropy_plot():
     path = "C:\\Users\\Gian Luca Foresti\\Desktop\\Materiale Uni\\4 - anno\\IT"
