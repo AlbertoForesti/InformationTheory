@@ -296,6 +296,7 @@ def ex5():
         if res != vector[ 3 ]:
             print( "Failure" )
     classifier.print_tree( )
+
 #ordinal
 #igr = 0
 #how to plot?

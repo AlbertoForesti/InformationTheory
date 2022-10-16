@@ -30,3 +30,9 @@ def save_bar(x, px, path, xlabel='x' ,ylabel='probability', title='Probability M
     plt.bar( x, px, align='center' )
     plt.savefig( path )
     plt.close( )
+
+
+def renyi_entropy(px, alpha):
+    if alpha == 1:
+        return entropy(px)
+    return 1/(1-alpha)*np.log2(sum(px**alpha))
