@@ -32,10 +32,35 @@ def save_bar(x, px, path, xlabel='x' ,ylabel='probability', title='Probability M
     plt.close( )
 
 
+def save_plot(y, path, x=None,xlabel='' ,ylabel='', title='', ymin=None, ymax=None, xmin=None, xmax=None):
+    if x is None:
+        x = np.arange(0, len(y), 1)
+    fig, ax = plt.subplots( )
+    ax.plot( x, y )
+    plt.title( title )
+    if ymin is None:
+        ymin = np.min(y)
+    if ymax is None:
+        ymax = np.max(y)
+    if xmax is None:
+        xmax = np.max(x)
+    if xmin is None:
+        xmin = np.min(x)
+    ax.set_ylim( ymin=ymin, ymax=ymax )
+    ax.set_xlabel(xlabel)
+    ax.set_ylabel(ylabel)
+    plt.savefig( path )
+    plt.close( )
+
+
 def renyi_entropy(px, alpha):
     if alpha == 1:
-        return entropy(px)
-    return 1/(1-alpha)*np.log2(sum(px**alpha))
+        return entropy_masked(px)
+    px = px.flat
+    if sum(px) >= 1.01 or np.any(px[px < 0]) or np.any(px[px > 1]):
+        return np.ma.masked
+    return 1/(1-alpha)*np.log2(sum(np.power(px, alpha)))
+
 
 def permutation_entropy(time_series, nr, sliding_window = None):
     time_series = time_series.flat  # avoid bug with multidimensionial arrays

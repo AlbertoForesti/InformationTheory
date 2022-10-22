@@ -6,30 +6,8 @@ import informationTheoryUtilities as it
 from scipy.optimize import fsolve
 from scipy.stats import binom
 import graphviz
-
-
-def f(n):
-    if n <= 0 or n >= 1:
-        return 0
-    return n * math.log2(1/n)
-
-
-def fc(a, b):
-    if a + b > 1:
-        return np.ma.masked
-    if a + b == 1:
-        return 0
-    return f(a) + f(b) + f(1 - a - b)
-
-
-def h(p):
-    if p == 0 or p == 1:
-        return 0
-    return p * np.log2( 1 / p ) + (1 - p) * np.log2( 1 / (1 - p) )
-
-
-def hc(p_fixed, p_array):
-    return np.array([fc(p, p_fixed) for p in p_array])
+import seaborn as sns
+import csv
 
 
 def entropy_plotter_2d():
@@ -42,56 +20,81 @@ def entropy_plotter_2d():
     plt.close( )
 
 
-def max_entropy_vector_plot():
-    path = "C:\\Users\\Gian Luca Foresti\\Desktop\\Materiale Uni\\4 - anno\\IT"
-    H = entropy_plot()
+def max_entropy_vector_plot(alpha):
+    H = renyi_entropy_plot(alpha)
+    print(np.nanmax(H))
+    max_vector = np.unravel_index( np.nanargmax( H, axis=None ), H.shape )  # returns a tuple
+    print(max_vector)
+    plt.scatter(max_vector[0], max_vector[1], color="white", edgecolors="black")
+    plt.title(
+        f"Hmax = {round( H[ max_vector[ 0 ] ][ max_vector[ 1 ] ], 3 )}, p1 = {round( max_vector[ 0 ] / 100., 2 )}, p2 = {round( max_vector[ 1 ] / 100., 2 )}" )
+
+
+def max_entropy_vector_plot_3d(alpha):
+    H = renyi_entropy_plot_3d(alpha)
     max_vector = np.unravel_index( np.nanargmax( H, axis=None ), H.shape )  # returns a tuple
     plt.scatter(max_vector[0], max_vector[1], color="white", edgecolors="black")
-    plt.title(f"Hmax = {round(H[ max_vector[ 0 ] ][ max_vector[ 1 ] ], 2)}, p1 = {round(max_vector[ 0 ]/100., 2)}, p2 = {round(max_vector[ 1 ]/100., 2)}")
-    plt.savefig(path+"\\Ex1A.png")
-    plt.close( )
+    plt.title(
+        f"Hmax = {round( H[ max_vector[ 0 ] ][ max_vector[ 1 ] ], 3 )}, p1 = {round( max_vector[ 0 ] / 100., 2 )}, p2 = {round( max_vector[ 1 ] / 100., 2 )}" )
 
 
 def entropy_plot():
-    p1 = np.linspace( 0, 1, 100 )
-    H = np.array( [ hc( p, np.arange( 0, 1, 0.01 ) ) for p in p1 ] )
+    # p1 = np.linspace( 0, 1, 100 )
+    # H = np.array( [ hc( p, np.arange( 0, 1, 0.01 ) ) for p in p1 ] )
+
+    H = np.array([[it.entropy_masked(np.array([p1, p2, 1-p1-p2])) for p2 in np.linspace( 0, 1, 1000 )] for p1 in np.linspace(0, 1, 1000)])
     plt.xlabel( "p1" )
     plt.ylabel( "p2" )
     plt.xticks( np.arange( 0, 101, 10 ), np.round( np.linspace( 0, 1, 11 ), 2 ) )  # Set text labels and properties.
     plt.yticks( np.arange( 0, 101, 10 ), np.round( np.linspace( 0, 1, 11 ), 2 ) )  # Set text labels and properties.
-    plt.imshow( H, cmap='rainbow', interpolation='bilinear' )
+    sns.heatmap(H, cmap = 'turbo')
+    # plt.imshow( H, cmap='turbo', interpolation='bilinear' )
     return H
 
 
-def entropy_plot_3d():
-    p1 = np.arange(0, 1.01, 0.01)
-    p2 = np.arange(0, 1.01, 0.01)
+def renyi_entropy_plot(alpha):
+    H = np.array(
+        [ [ it.renyi_entropy( np.array( [ round(p1, 4), round(p2, 4), round(1 - p1 - p2, 4) ] ), alpha) for p2 in np.linspace( 0, 1, 100 ) ] for p1 in
+          np.linspace( 0, 1, 100 ) ] )
+    print(f"MAX(H) = {np.nanmax( H )}")
+    sns.heatmap( H, cmap='turbo' )
+    plt.xlabel( "p1" )
+    plt.ylabel( "p2" )
+    plt.xticks( np.arange( 0, 101, 10 ), np.round( np.linspace( 0, 1, 11 ), 2 ) )  # Set text labels and properties.
+    plt.yticks( np.arange( 0, 101, 10 ), np.round( np.linspace( 0, 1, 11 ), 2 ) )  # Set text labels and properties.
+    # plt.imshow( H, cmap='turbo', interpolation='bilinear' )
+    return H
+
+
+def renyi_entropy_plot_3d(alpha):
+    p1 = np.arange(0, 1.005, 0.005)
+    p2 = np.arange(0, 1.005, 0.005)
     distributions = np.array( [ [round(px, 4), round(py, 4), round(1 - px - py, 4)] for px in p1 for py in p2 if 0 <= px + py <= 1 ] )
-    print(distributions)
-    H = np.array( [ it.renyi_entropy( px , 200) for px in distributions ] )
-    print(H)
+    # print(distributions)
+    H = np.array( [ it.renyi_entropy( px , alpha) for px in distributions ] )
+    # print(H)
     x = distributions[:, 0]
     y = distributions[:, 1]
     fig = plt.figure()
     ax = plt.axes(projection='3d')
     ax.scatter(x, y, H, c = H, cmap = 'turbo')
-    plt.show()
+    # plt.show()
     return H
 
-def average_vector_entropy_plot():
-    path = "C:\\Users\\Gian Luca Foresti\\Desktop\\Materiale Uni\\4 - anno\\IT"
-    entropy_plot()
+
+def average_vector_entropy_plot(alpha):
+    H = renyi_entropy_plot(alpha)
     p1 = round( random.random( ), 2 )
     p2 = round( random.uniform( 0, 1 - p1 ), 2 )
     p = (p1 + p2) / 2
+    distribution = np.array([p1, p2, 1 - p1 - p2])
+    avg_distribution = np.array([p, p, 1 - 2*p])
     plt.scatter( p1 * 100, p2 * 100, color="green", edgecolors="black", label="Original vector" )
     plt.scatter( p * 100, p * 100, color="red", edgecolors="black", label="Averaged vector" )
     plt.title(
-        f"p1 = {round(p1, 2)}, p2 = {round(p2, 2)}, p3 = {round(1 - p1 - p2, 2)}, H = {round( fc( p1, p2 ), 2 )}\n"
-        f"p = {round(p, 2)}, p = {round(p, 2)}, p3 = {round(1 - p1 - p2, 2)}, H = {round( fc( p, p ), 2 )}" )
+        f"p1 = {round( p1, 2 )}, p2 = {round( p2, 2 )}, p3 = {round( 1 - p1 - p2, 2 )}, H = {round( it.renyi_entropy( distribution, alpha ), 2 )}\n"
+        f"p = {round( p, 2 )}, p = {round( p, 2 )}, p3 = {round( 1 - p1 - p2, 2 )}, H = {round( it.renyi_entropy( avg_distribution, alpha ), 2 )}" )
     plt.legend()
-    plt.savefig(path+"\\Ex1B.png")
-    plt.close()
 
 
 def meal_pmf(costs, average, path):
@@ -141,6 +144,12 @@ class C4dot5classifier:
         tree = graphviz.Digraph("Decision tree")
         self.root.build_graphviz_tree(tree, 1)
         tree.render(directory='doctest-output', view=True)
+
+    def classify_csv(self, path):
+        with open(path) as f:
+            for row in csv.reader(f, delimiter=' '):
+                row = [float(x) for x in row]
+                print(f"label of {row} is {self.classify( row )}")
 
 
 class C4dot5node:
@@ -248,11 +257,17 @@ class C4dot5node:
 
 
 def ex1a():
-    max_entropy_vector_plot( )
+    path = "C:\\Users\\Gian Luca Foresti\\Desktop\\Materiale Uni\\4 - anno\\IT"
+    max_entropy_vector_plot(1)
+    plt.savefig( path + "\\Ex1A.png" )
+    plt.close( )
 
 
 def ex1b():
-    average_vector_entropy_plot()
+    path = "C:\\Users\\Gian Luca Foresti\\Desktop\\Materiale Uni\\4 - anno\\IT"
+    average_vector_entropy_plot(1)
+    plt.savefig( path + "\\Ex1B.png" )
+    plt.close( )
 
 
 def ex2a():
@@ -286,18 +301,23 @@ def ex4():
     path = "C:\\Users\\Gian Luca Foresti\\Desktop\\Materiale Uni\\4 - anno\\IT"
     it.save_bar(x, px, path + "\\Ex4empiricalpmf.png")
     uniform = 1/11*np.ones(11)
-    it.save_bar(x, uniform, path + "\\Ex4uniformpmf.png", title=f'KL-distance = {round(it.kl_distance(uniform, px), 2)}')
+    it.save_bar(x, uniform, path + "\\Ex4uniformpmf.png", title=f'KL-distance = {round(it.kl_distance(px, uniform), 2)}')
     dmin = 100
     pmin = 0
-    for p in np.arange(0.01, 1, 0.01):
-        if it.kl_distance(np.asarray([binom.pmf(r, 10, p) for r in np.arange(0, 11, 1)]), px) < dmin:
-            dmin = it.kl_distance(np.asarray([binom.pmf(r, 10, p) for r in np.arange(0, 11, 1)]), px)
+    klp = [it.kl_distance(px, np.asarray([binom.pmf(r, 10, p) for r in range(0, 11)])) for p in np.arange(0.01, 1, 0.01)]
+    plt.plot(np.arange(0.01, 1, 0.01), klp)
+    plt.show()
+    plt.close()
+    print("AAAA", sum(np.asarray([binom.pmf(r, 10, 0.5) for r in range(0, 11)])))
+    for p in np.arange(0.0001, 1, 0.0001):
+        if it.kl_distance(px, np.asarray([binom.pmf(r, 10, p) for r in range(0, 11)])) < dmin:
+            dmin = it.kl_distance(px, np.asarray([binom.pmf(r, 10, p) for r in range(0, 11)]))
             pmin = p
     print(f"The parameter p that allows minimum kl-distance for a binomial is: {pmin}")
     print(f"The minimum distance corresponding to p = {pmin} is {dmin}")
     print(f"The kl-distance between the uniform distribution and px is {it.kl_distance(uniform, px)}")
     # plt.scatter(x, np.asarray([binom.pmf(r, 10, pmin) for r in np.arange(0, 11, 1)]))
-    it.save_bar(x, np.asarray([binom.pmf(r, 10, pmin) for r in np.arange(0, 11, 1)]), path + "\\Ex4binomialpmf.png", title=f"p = {round(pmin,2)}, kl-distance = {round(dmin,2)}")
+    it.save_bar(x, np.asarray([binom.pmf(r, 10, pmin) for r in np.arange(0, 11, 1)]), path + "\\Ex4binomialpmf.png", title=f"p = {round(pmin,5)}, kl-distance = {round(dmin,5)}")
     # plt.hist(np.asarray([binom.pmf(r, 10, pmin) for r in np.arange(0, 11, 1)]))
 
 
@@ -311,23 +331,40 @@ def ex5():
         if res != vector[ 3 ]:
             print( "Failure" )
     classifier.print_tree( )
+    classifier.classify_csv(".\\vectors.csv")
 
 
 def ex6():
-    time_series = np.random.rand(10000)
-    pattern = np.array([np.random.normal(i, 100) if i % 2 == 0 else i for i in range(0, 1000)])
-    print(pattern)
-    time_series[1000:2000] = pattern #pattern example
-    sliding_window = 500
+    time_series = np.random.normal(0, 1, 10000)
+    path = "C:\\Users\\Gian Luca Foresti\\Desktop\\Materiale Uni\\4 - anno\\IT"
+    it.save_plot( time_series, path + "\\Ex6randomdata.png", title="Pattern time series" )
+    sliding_window = 512
     nr = 3
     y = it.permutation_entropy(time_series, nr, sliding_window)
-    fig, ax = plt.subplots( )
-    ax.plot( np.arange(0, len(y), 1), y)
-    plt.title( f"Average entropy: {np.average( y )}" )
-    ax.set_ylim( ymin=0, ymax=np.max(y)+1 )
-    plt.show( )
-    plt.close( )
+    it.save_plot(y, path + "\\Ex6prandom.png", ymin=0, ymax=np.max( y ) + 1,
+                  ylabel="Permutation entropy", title=f"Average permutation entropy: {np.average( y )}" )
+    # pattern = np.array([np.random.normal(0, 1) if i % 2 == 0 else 0 for i in range(0, 1000)])
+    # pattern = np.array( [ 0.825*np.sin(i) + np.random.normal(np.cos(i), 0.4) for i in range( 0, 1000 ) ] )
+    sd = 0.4
+    a = np.sqrt(2*(1 - sd**2))
+    pattern = np.array( [ a*np.sin( i ) + np.random.normal( 0, sd ) for i in range( 0, 1000 ) ] )
+    print(np.mean(pattern))
+    print(np.var(pattern))
 
+    time_series[ 3000:4000 ] = pattern  # pattern example
+    it.save_plot(time_series, path + "\\Ex6patterndata.png", title="Pattern time series")
+    y = it.permutation_entropy( time_series, nr, sliding_window )
+    it.save_plot(y, path + "\\Ex6pattern.png", ymin=0, ymax=np.max(y) + 1,ylabel="Permutation entropy", title=f"Average permutation entropy: {np.average( y )}")
+
+def ex7():
+    path = "C:\\Users\\Gian Luca Foresti\\Desktop\\Materiale Uni\\4 - anno\\IT"
+    for alpha in [0.5, 2, 10, 100]:
+        max_entropy_vector_plot(alpha)
+        plt.savefig(path + f"\\Ex7maxvector{alpha}.png")
+        plt.close()
+        average_vector_entropy_plot(alpha)
+        plt.savefig(path + f"\\Ex7avgvector{alpha}.png")
+        plt.close()
 #ordinal
 #igr = 0
 #how to plot?
